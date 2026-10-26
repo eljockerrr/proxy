@@ -27,18 +27,23 @@ jobs:
         fi
         chmod +x gradlew || true
 
-    - name: Fix Compose Dependencies
+    - name: Configure Gradle Fixes
       run: |
-        # إصلاح الإصدار غير المتوفر واستبداله بإصدار متوافق ومجرب
-        find . -type f \( -name "*.gradle.kts" -o -name "*.gradle" -o -name "libs.versions.toml" \) -exec sed -i 's/2024.10.01/2024.09.00/g' {} +
-        find . -type f \( -name "*.gradle.kts" -o -name "*.gradle" \) -exec sed -i 's/androidx.compose:compose-bom:2024.09.00/androidx.compose:compose-bom:2024.09.00/g' {} +
+        # 1. استبدال رقم الإصدار القديم في أي ملف إعدادات
+        find . -type f \( -name "*.gradle.kts" -o -name "*.gradle" -o -name "libs.versions.toml" \) -exec sed -i 's/2024.10.01/1.7.4/g' {} +
+
+        # 2. إضافة إعدادات لإجبار Gradle على تمرير التحذيرات واستخدام الذاكرة بشكل مستقر
+        mkdir -p ~/.gradle
+        echo "org.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=1024m" >> ~/.gradle/gradle.properties
+        echo "android.useAndroidX=true" >> ~/.gradle/gradle.properties
+        echo "android.enableJetifier=true" >> ~/.gradle/gradle.properties
 
     - name: Build with Gradle
       run: |
         if [ -f "./gradlew" ]; then
-          ./gradlew assembleDebug --stacktrace
+          ./gradlew assembleDebug --stacktrace --no-daemon -Dorg.gradle.warning.mode=all
         else
-          gradle assembleDebug --stacktrace
+          gradle assembleDebug --stacktrace --no-daemon -Dorg.gradle.warning.mode=all
         fi
 
     - name: Upload APK
