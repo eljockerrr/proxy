@@ -22,14 +22,18 @@ jobs:
     - name: Extract zip file
       run: |
         unzip -o SocksVpn.zip -d .
+        # إذا تم فك الضغط داخل مجلد SocksVpn ننقل الملفات للمجلد الرئيسي
+        if [ -d "SocksVpn" ]; then
+          cp -r SocksVpn/* . || true
+        fi
         chmod +x gradlew || true
 
     - name: Build with Gradle
       run: |
         if [ -f "./gradlew" ]; then
-          ./gradlew assembleRelease || ./gradlew assembleDebug
+          ./gradlew assembleDebug --stacktrace
         else
-          gradle assembleRelease || gradle assembleDebug
+          gradle assembleDebug --stacktrace
         fi
 
     - name: Upload APK
