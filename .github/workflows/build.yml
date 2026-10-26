@@ -29,8 +29,9 @@ jobs:
 
     - name: Fix Compose Dependencies
       run: |
-        # تصحيح الاعتماديات باستبدال رقم الإصدار بالنسخة المتوافقة
-        find . -name "build.gradle.kts" -o -name "build.gradle" | xargs sed -i 's/2024.10.01/1.7.4/g' || true
+        # إصلاح الإصدار غير المتوفر واستبداله بإصدار متوافق ومجرب
+        find . -type f \( -name "*.gradle.kts" -o -name "*.gradle" -o -name "libs.versions.toml" \) -exec sed -i 's/2024.10.01/2024.09.00/g' {} +
+        find . -type f \( -name "*.gradle.kts" -o -name "*.gradle" \) -exec sed -i 's/androidx.compose:compose-bom:2024.09.00/androidx.compose:compose-bom:2024.09.00/g' {} +
 
     - name: Build with Gradle
       run: |
