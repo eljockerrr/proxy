@@ -22,11 +22,15 @@ jobs:
     - name: Extract zip file
       run: |
         unzip -o SocksVpn.zip -d .
-        # إذا تم فك الضغط داخل مجلد SocksVpn ننقل الملفات للمجلد الرئيسي
         if [ -d "SocksVpn" ]; then
           cp -r SocksVpn/* . || true
         fi
         chmod +x gradlew || true
+
+    - name: Fix Compose Dependencies
+      run: |
+        # تصحيح الاعتماديات باستبدال رقم الإصدار بالنسخة المتوافقة
+        find . -name "build.gradle.kts" -o -name "build.gradle" | xargs sed -i 's/2024.10.01/1.7.4/g' || true
 
     - name: Build with Gradle
       run: |
